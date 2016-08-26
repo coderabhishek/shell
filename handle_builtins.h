@@ -40,6 +40,8 @@ void run_cd(char *path)
 	printf("absPath%s\n", abs_path);
 	chdir(abs_path);
 }
+
+
 bool handle_builtins(char cmd[])
 {
 	char *tokens[50];
@@ -47,6 +49,10 @@ bool handle_builtins(char cmd[])
 	if(!strcmp(tokens[0], "cd")){
 		run_cd(tokens[1]);
 		return false;
+	}
+	else if(!strcmp(tokens[0], "exit"))
+	{
+		exit(0);
 	}
 	return true;
 }
