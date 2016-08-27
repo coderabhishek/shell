@@ -12,6 +12,57 @@ void  INThandler(int sig)
           signal(SIGINT, INThandler);
 }
 
+
+char *sanitize_input(char input[])
+{
+	int n = strlen(input), w=0;
+	char *res = (char *)malloc(MAX*sizeof(char));
+	FILE *hist_file = fopen(history_file, "r");
+	if(hist_file){
+		char *history = (char *)malloc(MAX*sizeof(char));
+		fread(history, sizeof(char), MAX, hist_file);
+		for(int i=0;i<n;)
+		{
+			if(input[i]=='!')
+			{
+				int nn, t=0;
+				if(isdigit(input[i+1])){
+					char *num_s = (char *)malloc(MAX);
+					while(i<n && isdigit(input[++i]))
+						num_s[t++] = input[i];
+					num_s[t] = '\0';
+					nn = atoi(num_s);
+				}
+				else if(input[i+1]=='!'){
+					i += 2;
+					int lines = 0;
+					for(int ii=0;history[ii]!='\0';++ii)
+						if(history[ii]=='\n')
+							lines++;
+					nn = lines;
+				}
+				int j=0;
+				int strl = strlen(history);
+				for(int ii=0;ii<strl &&j<=nn;++ii)
+				{
+					int k = ii;
+					while(ii<strl && history[ii]!='\n')
+						ii++;
+					j++;
+					if(j==nn)
+					for(int u=k;u<ii;++u)
+						res[w++] = history[u];
+				}
+			}
+			else res[w++] = input[i++];
+		}
+		res[w] = '\0';
+		return res;
+	} 
+	else return input;
+}
+
+
 //for single command which is already separated by all the piping expressions
 int tokenize2(char *single_cmd, command *cmd)      
 {

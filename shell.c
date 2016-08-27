@@ -74,11 +74,13 @@ int main()
 			//input the command
 			if(fgets(cmd, MAX, stdin) != 0)
 			{
-				add_to_history(cmd);
-				char c;
 				int ll;
 				for(ll=0;cmd[ll]!='\0';ll++)
 						if(cmd[ll]=='\n') cmd[ll] = '\0';
+				cmd = sanitize_input(cmd);
+				for(ll=0;cmd[ll]!='\0';ll++)
+						if(cmd[ll]=='\n') cmd[ll] = '\0';
+				add_to_history(cmd);
 
 				if(handle_builtins(cmd))
 				{
