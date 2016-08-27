@@ -4,8 +4,29 @@
 #include <string.h>
 #include "support_routines.h"
 
-int tokenize(char *str, char *tokens[50]);
+void history()
+{
+	FILE *hist_file = fopen(history_file, "r");
+	char *history = (char *)malloc(MAX*sizeof(char));
+	fread(history, sizeof(char), MAX, hist_file);
+	int h_len = strlen(history), j=0;
+	for(int i=h_len-1;i>=0&&j<=his_num;--i)
+	{
+		while(i>=0 && history[i--]!='\n');
+		j++;
 
+	}
+	printf("%s\n", history);
+	fclose(hist_file);
+}
+
+void add_to_history(char cmd[])
+{
+	FILE *hist_file = fopen(history_file, "a");
+	char *history = (char *)malloc(MAX*sizeof(char));
+	fprintf(hist_file, "%s\n", cmd);
+	fclose(hist_file);
+}
 
 void run_cd(char *path)
 {
@@ -18,6 +39,8 @@ void run_cd(char *path)
 		abs_path[t] = '/';
 		abs_path[t+1] = '\0';
 	}
+
+	//Taking care of `.` and `..`
 	int read_head=0, write_head=0;
 	while(abs_path[read_head]!='\0')
 	{
@@ -37,22 +60,27 @@ void run_cd(char *path)
 	}
 	abs_path[write_head] = '\0';
 	strcat(abs_path, path);
-	printf("absPath%s\n", abs_path);
 	chdir(abs_path);
 }
 
 
 bool handle_builtins(char cmd[])
 {
-	char *tokens[50];
-	int token_size = tokenize(cmd, tokens);
-	if(!strcmp(tokens[0], "cd")){
-		run_cd(tokens[1]);
+	command *cmds = (command *)malloc(sizeof(cmd));
+	int token_size = tokenize2(cmd, cmds);
+	char **exec_cmd = cmds->argv;
+	if(!strcmp(exec_cmd[0], "cd")){
+		run_cd(exec_cmd[1]);
 		return false;
 	}
-	else if(!strcmp(tokens[0], "exit"))
+	else if(!strcmp(exec_cmd[0], "exit"))
 	{
 		exit(0);
+	}
+	else if(!strcmp(exec_cmd[0], "history"))
+	{
+		history();
+		return false;
 	}
 	return true;
 }

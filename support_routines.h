@@ -10,39 +10,28 @@
 typedef int bool;
 enum { false, true };
 
-bool handle_builtins(char cmd[]);
-void  INThandler(int sig)
-{
-    signal(sig, SIG_IGN);
-     printf("\nDo you really want to quit? [y/n]");
-     char ch = getchar();
-     if (ch == 'y' || ch == 'Y')
-          exit(0);
-     else
-          signal(SIGINT, INThandler);
-}
+#define MAX 500
+#define history_file "history"
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
 
-int tokenize(char *str, char *tokens[50])
+typedef struct command
 {
-	int i=0,j=0, tokens_index=0;
-	char *cur = (char *)malloc(50*sizeof(char));
-	for(i=0;str[i]!='\0';++i)
-	{
-		if(str[i]==' ')
-		{
-			cur[j] = '\0';
-			tokens[tokens_index++] = cur;
-			cur = (char *)malloc(50*sizeof(char));
-			j=0;
-			while(str[i+1]==' ')
-			 i++;
-		}
-		else cur[j++] = str[i];
-	}
-	cur[j] = '\0';
-	tokens[tokens_index++] = cur;
-	tokens[tokens_index] = NULL;
-	return tokens_index;
-}
+  char **argv;
+}command;
+
+bool handle_builtins(char cmd[]);
+
+//handles the interrupts
+void  INThandler(int sig);
+
+//separates with pipes
+command* tokenize(char *complete_cmd,command *command_list,int *cnt);
+
+//for single command which is already separated by all the piping expressions
+int tokenize2(char *single_cmd,command *cmd);
 
 #endif
