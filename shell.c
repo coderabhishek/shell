@@ -58,7 +58,6 @@ int run_pipes (int n, command *cmd)
 
 int main()
 {
-	
 	char *cmd;
 
 	cmd = (char*) malloc (sizeof(char)*MAX*10);

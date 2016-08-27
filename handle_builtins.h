@@ -10,13 +10,17 @@ void history()
 	char *history = (char *)malloc(MAX*sizeof(char));
 	fread(history, sizeof(char), MAX, hist_file);
 	int h_len = strlen(history), j=0;
-	for(int i=h_len-1;i>=0&&j<=his_num;--i)
+	for(int i=h_len-2;i>=0&&j<=his_num;--i)
 	{
-		while(i>=0 && history[i--]!='\n');
+		int k = i;
+		while(i>=0 && history[i]!='\n')
+			i--;
 		j++;
-
+		if(j>1)
+			for(int u=i+1;u<=k;++u)
+				printf(ANSI_COLOR_GREEN "%c" ANSI_COLOR_GREEN, history[u]);
+		printf("\n");
 	}
-	printf("%s\n", history);
 	fclose(hist_file);
 }
 
@@ -24,7 +28,7 @@ void add_to_history(char cmd[])
 {
 	FILE *hist_file = fopen(history_file, "a");
 	char *history = (char *)malloc(MAX*sizeof(char));
-	fprintf(hist_file, "%s\n", cmd);
+	fprintf(hist_file, "%s", cmd);
 	fclose(hist_file);
 }
 
