@@ -3,9 +3,11 @@
 #define support_routines_include_guard
 #include <unistd.h>
 #include <sys/types.h>
+#include <string.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 typedef int bool;
 enum { false, true };
@@ -30,9 +32,12 @@ bool handle_builtins(char cmd[]);
 void  INThandler(int sig);
 
 //separates with pipes
-command* tokenize(char *complete_cmd,command *command_list,int *cnt);
+command* tokenize(char *complete_cmd,command *command_list,int *cnt,int *dt,int *df);
 
 //for single command which is already separated by all the piping expressions
 int tokenize2(char *single_cmd,command *cmd);
+
+//expand `!` and `!!` in the input
+char *sanitize_input(char input[]);
 
 #endif

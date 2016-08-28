@@ -133,6 +133,7 @@ add(root,"gzexe");
 add(root,"gzip");
 add(root,"hciconfig");
 add(root,"hostname");
+add(root,"history");
 add(root,"ip");
 add(root,"journalctl");
 add(root,"kill");

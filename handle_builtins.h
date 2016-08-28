@@ -80,7 +80,7 @@ void run_cd(char *path)
 
 bool handle_builtins(char cmd[])
 {
-	command *cmds = (command *)malloc(sizeof(cmd));
+	command *cmds = (command *)malloc(sizeof(command));
 	int token_size = tokenize2(cmd, cmds);
 	char **exec_cmd = cmds->argv;
 	if(!strcmp(exec_cmd[0], "cd")){

@@ -74,9 +74,15 @@ int tokenize2(char *single_cmd, command *cmd)
 
 	while(single_cmd[i] == ' ') i++;
 
+	int col = 0;
+
 	while(true)
 	{
-		if(single_cmd[i]==' ' || single_cmd[i]=='\0')
+		/* checks whether input is a string */ 
+		if(single_cmd[i] == '\"' || single_cmd[i] == '\'')
+			{col = col ^ 1; i++; continue; }
+
+		if( (single_cmd[i]==' ' && col == 0)  || single_cmd[i]=='\0')
 		{
 			cur[j] = '\0';
 			cmd->argv[index++] = cur;
@@ -101,15 +107,23 @@ int tokenize2(char *single_cmd, command *cmd)
 
 
 //separates with pipes
-command* tokenize(char *complete_cmd,command *command_list,int *cnt)
+command* tokenize(char *complete_cmd,command *command_list,int *cnt,int *dt,int *df)
 {
 	int i=0,j=0,index=0;
 	
 	char *cur = (char *)malloc(MAX*sizeof(char));
-	
+	int direct_to = 0;
+	int direct_from = 0;
+
 	while(true)
 	{
-	if(complete_cmd[i]=='|' || complete_cmd[i]=='\0')
+	if(complete_cmd[i] == '>')
+		direct_to = 1;
+
+	if(complete_cmd[i] == '<')
+		direct_from = 1;	
+
+	if(complete_cmd[i]=='|' || complete_cmd[i]=='>' || complete_cmd[i]=='\0' || complete_cmd[i]=='<')
 		{
 
 			cur[j] = '\0';
@@ -118,7 +132,7 @@ command* tokenize(char *complete_cmd,command *command_list,int *cnt)
 			cur = (char *)malloc(MAX*sizeof(char));
 			
 			
-			if(complete_cmd[i] == '|') i++;
+			if(complete_cmd[i] == '|' || complete_cmd[i]=='>' || complete_cmd[i]=='<') i++;
 
 			while(complete_cmd[i] == ' ') i++;
 			if(complete_cmd[i]!='\0')
@@ -131,6 +145,12 @@ command* tokenize(char *complete_cmd,command *command_list,int *cnt)
 		cur[j++] = complete_cmd[i++];
 	}
 
+	if(direct_to)
+		(*dt) = 1;
+		
+	if(direct_from)
+		(*df) = 1;
+		
 	(*cnt) = index;
 	return command_list;	
 }
