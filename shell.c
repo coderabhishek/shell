@@ -1,11 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+// #include <ncurses.h>
+#include "trie.h"
+
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include "support_routines.h"
 #include "handle_builtins.h"
+
 
 /* executes single process */
 int single_process (int in, int out, command *cmd, int *fd)
@@ -59,41 +63,63 @@ int run_pipes (int n, command *cmd)
 int main()
 {
 	char *cmd;
+	node *root = init_trie();
 
 	cmd = (char*) malloc (sizeof(char)*MAX*10);
-
 	while(1)
-		{
-			signal(SIGINT, INThandler);
-			
-			//prints current directory
-			char cwd[MAX];
-			getcwd(cwd, MAX);
-			fflush(stdin);
-			printf(ANSI_COLOR_RED "%s" ANSI_COLOR_RESET " :", cwd);
-			//input the command
-			if(fgets(cmd, MAX, stdin) != 0)
+	{
+		signal(SIGINT, INThandler);
+		
+		//prints current directory
+		char cwd[MAX];
+		getcwd(cwd, MAX);
+		fflush(stdin);
+		printf(ANSI_COLOR_RED "%s" ANSI_COLOR_RESET " :", cwd);
+		//input the command
+		char ch;
+		int i=0;
+		
+		ch = getchar();
+		
+		while(ch!='\n')
+		{	
+			if(ch=='	')
 			{
-				int ll;
-				for(ll=0;cmd[ll]!='\0';ll++)
-						if(cmd[ll]=='\n') cmd[ll] = '\0';
-				cmd = sanitize_input(cmd);
-				for(ll=0;cmd[ll]!='\0';ll++)
-						if(cmd[ll]=='\n') cmd[ll] = '\0';
-				add_to_history(cmd);
-
-				if(handle_builtins(cmd))
-				{
-					command *command_list;	
-					command_list = (command *)malloc(sizeof(command));				
-					int *cnt = (int *)malloc(sizeof(int));
-					command_list = tokenize(cmd,command_list,cnt);
-					int command_cnt = *cnt;	
-			       	run_pipes(command_cnt,command_list);
-			    }
+				cmd[i] = '\0';
+				getchar();
+				search(root, cmd);
+				printf(ANSI_COLOR_RED "\n%s" ANSI_COLOR_RESET " :%s", cwd, cmd);
+				
 			}
-			else printf("\n");
+			else cmd[i++] = ch; 
+		
+		ch = getchar();	
 		}
+		
+		cmd[i] = '\0';
+		
+		if(cmd[0] != '\0')
+		{
+			int ll;
+			for(ll=0;cmd[ll]!='\0';ll++)
+					if(cmd[ll]=='\n') cmd[ll] = '\0';
+			cmd = sanitize_input(cmd);
+			for(ll=0;cmd[ll]!='\0';ll++)
+					if(cmd[ll]=='\n') cmd[ll] = '\0';
+			add_to_history(cmd);
+
+			if(handle_builtins(cmd))
+			{
+				command *command_list;	
+				command_list = (command *)malloc(sizeof(command));				
+				int *cnt = (int *)malloc(sizeof(int));
+				command_list = tokenize(cmd,command_list,cnt);
+				int command_cnt = *cnt;	
+		       	run_pipes(command_cnt,command_list);
+		    }
+		}
+		else printf("\n");
+	}
 }
 
 
